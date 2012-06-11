@@ -23,12 +23,10 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		
 		// Main variables
 		this.map = null;
-		this.markers = null;
+		this.markers = [];
 		
 		// Instantiate the map
 		this.map = new google.maps.Map( $( mapOptions.element )[0], mapOptions );
-		
-		
 	}
 	
 	// Reposition the center 
@@ -101,6 +99,26 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		return this.map.getZoom();
 	}
 	
+	InteractiveMap.prototype.addMarker = function( options ){
+		var self = this;
+		
+		var defaults = {
+			lat: this.map.getCenter().lat(),
+			lng: this.map.getCenter().lng(),
+			title: 'My marker',
+			icon: undefined
+		};
+		
+		var markerOptions = $.extend( {}, defaults, options );
+		markerOptions.position = new google.maps.LatLng( markerOptions.lat, markerOptions.lng );
+		
+		console.log(markerOptions);
+		
+		var marker = new google.maps.Marker( markerOptions );
+		marker.setMap( self.map );
+		this.markers.push(marker);
+	}
+	
 	
 	// Events
 	InteractiveMap.prototype.on = function( event, callback ){
@@ -114,7 +132,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				event === 'mouseover' || event === 'mouseout' ){
 					
 					google.maps.event.addListener( self.map, event, function( arg ){
-						callback( arg );
+						callback( arg.latLng.lat(), arg.latLng.lng() );
 					} );
 					
 			}
