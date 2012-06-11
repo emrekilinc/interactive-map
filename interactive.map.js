@@ -11,7 +11,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var defaults = {
 			element: 'body',
 			zoom: 8,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			mapType: 'roadmap',
 			lat: -34.397,
 			lng: 150.644,
 			disableDefaultUI: false
@@ -21,9 +21,25 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		// The exact point the mapp will be centered by default
 		mapOptions.center = new google.maps.LatLng( mapOptions.lat, mapOptions.lng );
 		
+		// Setting the map type
+		if( options.mapType === 'roadmap' || options.mapType == undefined ){
+			mapOptions.mapTypeId = google.maps.MapTypeId.ROADMAP;
+		}
+		else if( options.mapType === 'satellite' ){
+			mapOptions.mapTypeId = google.maps.MapTypeId.SATELLITE;
+		}
+		else if( options.mapType === 'hybrid' ){
+			mapOptions.mapTypeId = google.maps.MapTypeId.HYBRID;
+		}
+		else if( options.mapType === 'terrain' ){
+			mapOptions.mapTypeId = google.maps.MapTypeId.TERRAIN;
+		}
+		
+		
 		// Main variables
 		this.map = null;
 		this.markers = [];
+		this.polylines = [];
 		
 		// Instantiate the map
 		this.map = new google.maps.Map( $( mapOptions.element )[0], mapOptions );
@@ -99,6 +115,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		return this.map.getZoom();
 	}
 	
+	// Add Marker
 	InteractiveMap.prototype.addMarker = function( options ){
 		var self = this;
 		
@@ -106,19 +123,126 @@ var InteractiveMap = (function( $, window, document, undefined ){
 			lat: this.map.getCenter().lat(),
 			lng: this.map.getCenter().lng(),
 			title: 'My marker',
-			icon: undefined
+			icon: undefined,
+			draggable: false,
+			animation: google.maps.Animation.DROP // By default animation is DROP -- BOUNCE or null are other options
 		};
 		
 		var markerOptions = $.extend( {}, defaults, options );
 		markerOptions.position = new google.maps.LatLng( markerOptions.lat, markerOptions.lng );
-		
-		console.log(markerOptions);
 		
 		var marker = new google.maps.Marker( markerOptions );
 		marker.setMap( self.map );
 		this.markers.push(marker);
 	}
 	
+	// Remove All Markers -- Still in the array
+	InteractiveMap.prototype.removeMarkers = function(){
+		var self = this;
+		
+		if( self.markers ){
+			for (var i=0; i < self.markers.length; i++) {
+				self.markers[i].setMap( null );
+			};
+		}
+	}
+	
+	// Show markers that is still in the array
+	InteractiveMap.prototype.showMarkers = function(){
+		var self = this;
+		
+		if( self.markers ){
+			for (var i=0; i < self.markers.length; i++) {
+				self.markers[i].setMap( self.map );
+			};
+		}
+		
+	}
+	
+	// Delete all markers including the array
+	InteractiveMap.prototype.deleteMarkers = function(){
+		var self = this;
+		
+		if( self.markers ){
+			for (var i=0; i < self.markers.length; i++) {
+				self.markers[i].setMap( null );
+			};
+		}
+		self.markers.length = 0;
+	}
+	
+	// Add Polyline - aka Plan
+	InteractiveMap.prototype.addPolyline = function( coordinatesArray, options ){
+		
+		var self = this,
+			polyLineOptions = {
+				path: [],
+				strokeColor: '#FF0000',
+				strokeOpacity: 1.0,
+				strokeWeight: 2
+			};
+		
+		if( options.color ){
+			polyLineOptions.strokeColor = options.color;
+		}
+		
+		if( options.opacity ){
+			polyLineOptions.strokeOpacity = options.opacity;
+		}
+		
+		if( options.thickness ){
+			polyLineOptions.strokeWeight = options.thickness;
+		}
+		
+		if( coordinatesArray ){
+			
+			for (var i=0; i < coordinatesArray.length; i++) {
+				polyLineOptions.path.push( new google.maps.LatLng( coordinatesArray[i].lat, coordinatesArray[i].lng ) );
+			};
+			
+			var polyline = new google.maps.Polyline( polyLineOptions );
+			polyline.setMap( self.map );
+			
+			self.polylines.push( polyline );
+		}
+		
+	}
+	
+	// Remove polylines -- Still in the array
+	InteractiveMap.prototype.removePolylines = function(){
+		var self = this;
+		
+		if( self.polylines ){
+			for (var i=0; i < self.polylines.length; i++) {
+				self.polylines[i].setMap( null );
+			};
+		}
+	}
+	
+	// Show polylines -- Still in the array
+	InteractiveMap.prototype.showPolylines = function(){
+		var self = this;
+		
+		if( self.polylines ){
+			for (var i=0; i < self.polylines.length; i++) {
+				console.log(self.polylines[i]);
+				self.polylines[i].setMap( self.map );
+			};
+		}
+	}
+	
+	// Delete polylines - including the ones in the array
+	InteractiveMap.prototype.deletePolylines = function(){
+		var self = this;
+		
+		if( self.polylines ){
+			for (var i=0; i < self.polylines.length; i++) {
+				self.polylines[i].setMap(null);
+			};
+			
+			self.polylines.length = 0;
+		}
+	}
 	
 	// Events
 	InteractiveMap.prototype.on = function( event, callback ){
