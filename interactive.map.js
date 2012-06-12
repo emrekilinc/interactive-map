@@ -135,6 +135,28 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		marker.setMap( self.map );
 		this.markers.push(marker);
 		
+		// Setting info window
+		if( options.content ){
+			
+			var infoWindow = new google.maps.InfoWindow({ content: options.content });
+			
+			if( options.infoWindowTrigger ){
+				
+				google.maps.event.addListener( marker, options.infoWindowTrigger, function(){
+					infoWindow.open( self.map, marker );
+				});
+				
+			}else{
+				// Open by default
+				infoWindow.open( self.map, marker );
+				google.maps.event.addListener( marker, 'click', function(){
+					infoWindow.open( self.map, marker );
+				});
+				
+			}
+			
+		}
+		
 		var events = [ 'click', 'dblclick', 'rightclick', 'drag', 'dragend', 'dragstart', 'mousedown', 'mouseup', 'mouseout', 'mouseover' ];
 		
 		for (var e=0; e < events.length; e++) {
@@ -143,11 +165,8 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				google.maps.event.addListener( marker, events[e], function( evt ){
 					options[eventName].call( options[eventName], evt );
 				});
-				
 			}
 		};
-		
-		return marker;
 	}
 	
 	// Remove All Markers -- Still in the array
@@ -173,7 +192,6 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		
 	}
 	
-	// TODO : Handling marker events !! IMPORTANT
 	// TODO : Markers info windows
 	
 	// Delete all markers including the array
