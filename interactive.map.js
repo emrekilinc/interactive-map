@@ -35,6 +35,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		this.markers = [];
 		this.polylines = [];
 		this.polygons = [];
+		this.directionService = null;
 		
 		// Instantiate the map
 		this.map = new google.maps.Map( $( mapOptions.element )[0], mapOptions );
@@ -170,7 +171,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.markers ){
-			for (var i=0; i < self.markers.length; i++) {
+			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( null );
 			};
 		}
@@ -181,7 +182,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.markers ){
-			for (var i=0; i < self.markers.length; i++) {
+			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( self.map );
 			};
 		}
@@ -193,7 +194,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.markers ){
-			for (var i=0; i < self.markers.length; i++) {
+			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( null );
 			};
 		}
@@ -211,9 +212,9 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				strokeWeight: 2
 			};
 		
-		options.color && (polyLineOptions.strokeColor = options.color);
-		options.opacity && (polyLineOptions.strokeOpacity = options.opacity);
-		options.thickness && (polyLineOptions.strokeWeight = options.thickness);
+		options.color && ( polyLineOptions.strokeColor = options.color );
+		options.opacity && ( polyLineOptions.strokeOpacity = options.opacity );
+		options.thickness && ( polyLineOptions.strokeWeight = options.thickness );
 		
 		if( coordinatesArray ){
 			
@@ -234,7 +235,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.polylines ){
-			for (var i=0; i < self.polylines.length; i++) {
+			for ( var i=0; i < self.polylines.length; i++ ) {
 				self.polylines[i].setMap( null );
 			};
 		}
@@ -245,7 +246,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.polylines ){
-			for (var i=0; i < self.polylines.length; i++) {
+			for ( var i=0; i < self.polylines.length; i++ ) {
 				self.polylines[i].setMap( self.map );
 			};
 		}
@@ -256,17 +257,13 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.polylines ){
-			for (var i=0; i < self.polylines.length; i++) {
-				self.polylines[i].setMap(null);
+			for ( var i=0; i < self.polylines.length; i++ ) {
+				self.polylines[i].setMap( null );
 			};
 			
 			self.polylines.length = 0;
 		}
 	}
-	
-	// TODO : User must be able to draw a polyline
-	// 2. Rectangles and shapes
-	// 3. User HTML5 Geolocation -- add an extra method for dropping a pin maybe??
 	
 	InteractiveMap.prototype.addPolygon = function( coordinatesArray, options ){
 		var self = this,
@@ -279,11 +276,11 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				fillOpacity: 0.35
 			};
 		
-		options.color && (polygonOptions.strokeColor = options.color);
-		options.opacity && (polygonOptions.strokeOpacity = options.opacity);
-		options.thickness && (polygonOptions.strokeWeight = options.thickness);
-		options.background && (polygonOptions.fillColor = options.background);
-		options.backgroundOpacity && (polygonOptions.fillOpacity = options.backgroundOpacity);
+		options.color && ( polygonOptions.strokeColor = options.color );
+		options.opacity && ( polygonOptions.strokeOpacity = options.opacity );
+		options.thickness && ( polygonOptions.strokeWeight = options.thickness );
+		options.background && ( polygonOptions.fillColor = options.background );
+		options.backgroundOpacity && ( polygonOptions.fillOpacity = options.backgroundOpacity );
 				
 		if( coordinatesArray ){
 			
@@ -304,7 +301,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.polygons ){
-			for (var i=0; i < self.polygons.length; i++) {
+			for ( var i=0; i < self.polygons.length; i++ ) {
 				self.polygons[i].setMap( null );
 			};
 		}
@@ -326,12 +323,58 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var self = this;
 		
 		if( self.polygons ){
-			for (var i=0; i < self.polygons.length; i++) {
-				self.polygons[i].setMap(null);
+			for ( var i=0; i < self.polygons.length; i++ ) {
+				self.polygons[i].setMap( null );
 			};
 			
 			self.polygons.length = 0;
 		}
+	}
+	
+	// 1. Directions
+	// 2. Distances between places
+	// 3. Geocoding
+	
+	InteractiveMap.prototype.renderDirections = function( options ){
+		var self = this,
+			directionsOptions = {
+				origin: null,
+				destination: null,
+				travelMode: google.maps.TravelMode.DRIVING
+			};
+			
+		self.directionService = new google.maps.DirectionsService();
+					
+		options.origin && ( directionsOptions.origin = new google.maps.LatLng( options.origin.lat, options.origin.lng ) );
+		options.destination && ( directionsOptions.destination = new google.maps.LatLng( options.destination.lat, options.destination.lng ) );
+		
+		if( options.travelMode === 'driving' || options.travelMode === undefined ){
+			directionsOptions.travelMode = google.maps.TravelMode.DRIVING;
+		}
+		else if( options.travelMode === 'walking' ){
+			directionsOptions.travelMode = google.maps.TravelMode.WALKING;
+		}
+		else if( options.travelMode === 'bicycle' ){
+			directionsOptions.travelMode = google.maps.TravelMode.BICYCLING;
+		}
+		
+		self.directionService.route( directionsOptions, function( response, status ){
+			
+			console.log( response, status );
+			
+			var directionsDisplay = new google.maps.DirectionsRenderer();
+			directionsDisplay.suppressMarkers = !options.markers;
+			directionsDisplay.setMap( self.map );
+			
+			if( options.resultsElement ){
+				directionsDisplay.setPanel( $(options.resultsElement)[0] );
+			}
+			
+			if (status == google.maps.DirectionsStatus.OK) {
+				directionsDisplay.setDirections( response );
+			}
+		});
+		
 	}
 	
 	// Events

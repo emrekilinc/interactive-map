@@ -2,7 +2,50 @@
 	
 	myMap = new InteractiveMap({ element: '.map', disableDefaultUI: true, lat: 24.886436490787712, lng: -70.2685546875, zoom: 5, mapType: 'terrain' });	
 	
-	myMap.addPolygon([{lat:25.774252, lng:-80.190262}, {lat:18.466465, lng:-66.118292}, {lat:32.321384, lng:-64.75737}, {lat:25.774252, lng:-80.190262}], { color: '#000' });
+	// myMap.renderDirections({
+	// 	origin: {
+	// 		lat: 36.18861,
+	// 		lng: 33.6633339
+	// 	},
+	// 	destination: {
+	// 		lat: 36.83484,
+	// 		lng: 34.6474075
+	// 	},
+	// 	markers: false,
+	// 	travelMode: 'driving'
+	// });
+	// 
+	// 
+	// myMap.renderDirections({
+	// 	origin: {
+	// 		lat: 36.65512,
+	// 		lng: 33.3644371
+	// 	},
+	// 	destination: {
+	// 		lat: 36.7025,
+	// 		lng: 34.3683319
+	// 	},
+	// 	markers: false,
+	// 	travelMode: 'walking'
+	// });
+	
+	myMap.renderDirections({
+		origin: {
+			lat: 36.65244,
+			lng: 34.38062
+		},
+		destination: {
+			lat: 36.6658325,
+			lng: 34.3997231
+		},
+		markers: true,
+		travelMode: 'driving',
+		resultsElement : '#panel1'
+	});
+	
+	
+	
+	//myMap.addPolygon([{lat:25.774252, lng:-80.190262}, {lat:18.466465, lng:-66.118292}, {lat:32.321384, lng:-64.75737}, {lat:25.774252, lng:-80.190262}], { color: '#000' });
 	
 	
 	
