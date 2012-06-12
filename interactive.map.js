@@ -331,10 +331,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		}
 	}
 	
-	// 1. Directions
-	// 2. Distances between places
-	// 3. Geocoding
-	
+	// Refactor code here - baaaad code
 	InteractiveMap.prototype.renderDirections = function( options ){
 		var self = this,
 			directionsOptions = {
@@ -368,6 +365,19 @@ var InteractiveMap = (function( $, window, document, undefined ){
 			
 			if( options.resultsElement ){
 				directionsDisplay.setPanel( $(options.resultsElement)[0] );
+			}
+			
+			if( typeof( options.instructions ) === 'function' ){
+				var leg = response.routes[0].legs[0];
+				var directionInformations = { startAdress: leg.start_address, endAddress: leg.end_address, startLocation: { lat: leg.start_location.lat(), lng: leg.start_location.lng() }, endLocation: { lat: leg.end_location.lat(), lng: leg.end_location.lng() }, instructions: [] }
+				
+				var results = $.map( response.routes[0].legs[0].steps, function( value, index ){
+					return { distance: value.distance.text, duration: value.duration.text, text: value.instructions, startLocation: { lat: value.start_location.lat(), lng: value.start_location.lng() }, endLocation: { lat: value.end_location.lat(), lng: value.end_location.lng() } };
+				});
+				
+				directionInformations.instructions = results;
+				
+				options['instructions'].call( options['instructions'], directionInformations );
 			}
 			
 			if (status == google.maps.DirectionsStatus.OK) {

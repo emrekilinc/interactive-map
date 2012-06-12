@@ -38,9 +38,12 @@
 			lat: 36.6658325,
 			lng: 34.3997231
 		},
-		markers: true,
+		markers: false,
 		travelMode: 'driving',
-		resultsElement : '#panel1'
+		// instructions: function( data ){
+		// 			console.log(data);
+		// 		}
+		resultsElement: '#panel1'
 	});
 	
 	
