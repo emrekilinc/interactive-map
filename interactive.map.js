@@ -36,6 +36,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		this.polylines = [];
 		this.polygons = [];
 		this.directionService = null;
+		this.directionsDisplays = [];
 		
 		// Instantiate the map
 		this.map = new google.maps.Map( $( mapOptions.element )[0], mapOptions );
@@ -170,7 +171,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.removeMarkers = function(){
 		var self = this;
 		
-		if( self.markers ){
+		if( self.markers.length > 0 ){
 			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( null );
 			};
@@ -181,7 +182,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.showMarkers = function(){
 		var self = this;
 		
-		if( self.markers ){
+		if( self.markers.length > 0 ){
 			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( self.map );
 			};
@@ -193,7 +194,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.deleteMarkers = function(){
 		var self = this;
 		
-		if( self.markers ){
+		if( self.markers.length > 0 ){
 			for ( var i=0; i < self.markers.length; i++ ) {
 				self.markers[i].setMap( null );
 			};
@@ -234,7 +235,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.removePolylines = function(){
 		var self = this;
 		
-		if( self.polylines ){
+		if( self.polylines.length > 0 ){
 			for ( var i=0; i < self.polylines.length; i++ ) {
 				self.polylines[i].setMap( null );
 			};
@@ -245,7 +246,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.showPolylines = function(){
 		var self = this;
 		
-		if( self.polylines ){
+		if( self.polylines.length > 0 ){
 			for ( var i=0; i < self.polylines.length; i++ ) {
 				self.polylines[i].setMap( self.map );
 			};
@@ -256,7 +257,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.deletePolylines = function(){
 		var self = this;
 		
-		if( self.polylines ){
+		if( self.polylines.length > 0 ){
 			for ( var i=0; i < self.polylines.length; i++ ) {
 				self.polylines[i].setMap( null );
 			};
@@ -300,7 +301,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.removePolygons = function(){
 		var self = this;
 		
-		if( self.polygons ){
+		if( self.polygons.length > 0 ){
 			for ( var i=0; i < self.polygons.length; i++ ) {
 				self.polygons[i].setMap( null );
 			};
@@ -311,7 +312,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.showPolygons = function(){
 		var self = this;
 		
-		if( self.polygons ){
+		if( self.polygons.length > 0 ){
 			for (var i=0; i < self.polygons.length; i++) {
 				self.polygons[i].setMap( self.map );
 			};
@@ -322,7 +323,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	InteractiveMap.prototype.deletePolygons = function(){
 		var self = this;
 		
-		if( self.polygons ){
+		if( self.polygons.length > 0 ){
 			for ( var i=0; i < self.polygons.length; i++ ) {
 				self.polygons[i].setMap( null );
 			};
@@ -357,14 +358,13 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		
 		self.directionService.route( directionsOptions, function( response, status ){
 			
-			console.log( response, status );
-			
 			var directionsDisplay = new google.maps.DirectionsRenderer();
 			directionsDisplay.suppressMarkers = !options.markers;
 			directionsDisplay.setMap( self.map );
+			self.directionsDisplays.push( directionsDisplay );
 			
 			if( options.resultsElement ){
-				directionsDisplay.setPanel( $(options.resultsElement)[0] );
+				directionsDisplay.setPanel( $( options.resultsElement )[0] );
 			}
 			
 			if( typeof( options.instructions ) === 'function' ){
@@ -380,11 +380,25 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				options['instructions'].call( options['instructions'], directionInformations );
 			}
 			
-			if (status == google.maps.DirectionsStatus.OK) {
+			if ( status == google.maps.DirectionsStatus.OK ) {
 				directionsDisplay.setDirections( response );
 			}
 		});
 		
+	}
+	
+	// Clear directions of the map
+	InteractiveMap.prototype.clearDirections = function(){
+		var self = this;
+		
+		if( self.directionsDisplays.length > 0 ){
+			
+			for ( var i=0; i < self.directionsDisplays.length; i++ ) {
+				self.directionsDisplays[i].setMap( null );
+			};
+			
+			self.directionsDisplays.length = 0;
+		}
 	}
 	
 	// Events
