@@ -4,7 +4,7 @@
 // releated under the MIT license
 ;
 var InteractiveMap = (function( $, window, document, undefined ){
-	"use strict";
+	//"use strict";
 	
 	var InteractiveMap = function( options ){	
 		
@@ -134,6 +134,20 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		var marker = new google.maps.Marker( markerOptions );
 		marker.setMap( self.map );
 		this.markers.push(marker);
+		
+		var events = [ 'click', 'dblclick', 'rightclick', 'drag', 'dragend', 'dragstart', 'mousedown', 'mouseup', 'mouseout', 'mouseover' ];
+		
+		for (var e=0; e < events.length; e++) {
+			if( typeof( options[events[e]] ) === 'function' ){
+				var eventName = events[e];
+				google.maps.event.addListener( marker, events[e], function( evt ){
+					options[eventName].call( options[eventName], evt );
+				});
+				
+			}
+		};
+		
+		return marker;
 	}
 	
 	// Remove All Markers -- Still in the array
@@ -158,6 +172,9 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		}
 		
 	}
+	
+	// TODO : Handling marker events !! IMPORTANT
+	// TODO : Markers info windows
 	
 	// Delete all markers including the array
 	InteractiveMap.prototype.deleteMarkers = function(){
@@ -244,10 +261,15 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		}
 	}
 	
+	// TODO : User must be able to draw a polyline
+	
+	// 1. Polygons
+	// 2. Rectangles and shapes
+	
 	// Events
 	InteractiveMap.prototype.on = function( event, callback ){
 		var self = this;
-
+		
 		if( typeof( event ) === 'string' )
 		{
 			// DOM Event
