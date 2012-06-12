@@ -25,21 +25,16 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		if( options.mapType === 'roadmap' || options.mapType == undefined ){
 			mapOptions.mapTypeId = google.maps.MapTypeId.ROADMAP;
 		}
-		else if( options.mapType === 'satellite' ){
-			mapOptions.mapTypeId = google.maps.MapTypeId.SATELLITE;
-		}
-		else if( options.mapType === 'hybrid' ){
-			mapOptions.mapTypeId = google.maps.MapTypeId.HYBRID;
-		}
-		else if( options.mapType === 'terrain' ){
-			mapOptions.mapTypeId = google.maps.MapTypeId.TERRAIN;
-		}
 		
+		options.mapType === 'satellite' && (mapOptions.mapTypeId = google.maps.MapTypeId.SATELLITE);
+		options.mapType === 'hybrid' && (mapOptions.mapTypeId = google.maps.MapTypeId.HYBRID);
+		options.mapType === 'terrain' && (mapOptions.mapTypeId = google.maps.MapTypeId.TERRAIN);
 		
 		// Main variables
 		this.map = null;
 		this.markers = [];
 		this.polylines = [];
+		this.polygons = [];
 		
 		// Instantiate the map
 		this.map = new google.maps.Map( $( mapOptions.element )[0], mapOptions );
@@ -54,6 +49,7 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	// Change google map type
 	InteractiveMap.prototype.changeMapType = function( mapType ){
 		var self = this;
+		// Refactor here
 		if( mapType === 'roadmap' || mapType == undefined ){
 			self.map.setMapTypeId( google.maps.MapTypeId.ROADMAP );
 		}
@@ -192,8 +188,6 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		
 	}
 	
-	// TODO : Markers info windows
-	
 	// Delete all markers including the array
 	InteractiveMap.prototype.deleteMarkers = function(){
 		var self = this;
@@ -217,17 +211,9 @@ var InteractiveMap = (function( $, window, document, undefined ){
 				strokeWeight: 2
 			};
 		
-		if( options.color ){
-			polyLineOptions.strokeColor = options.color;
-		}
-		
-		if( options.opacity ){
-			polyLineOptions.strokeOpacity = options.opacity;
-		}
-		
-		if( options.thickness ){
-			polyLineOptions.strokeWeight = options.thickness;
-		}
+		options.color && (polyLineOptions.strokeColor = options.color);
+		options.opacity && (polyLineOptions.strokeOpacity = options.opacity);
+		options.thickness && (polyLineOptions.strokeWeight = options.thickness);
 		
 		if( coordinatesArray ){
 			
@@ -260,7 +246,6 @@ var InteractiveMap = (function( $, window, document, undefined ){
 		
 		if( self.polylines ){
 			for (var i=0; i < self.polylines.length; i++) {
-				console.log(self.polylines[i]);
 				self.polylines[i].setMap( self.map );
 			};
 		}
@@ -280,9 +265,74 @@ var InteractiveMap = (function( $, window, document, undefined ){
 	}
 	
 	// TODO : User must be able to draw a polyline
-	
-	// 1. Polygons
 	// 2. Rectangles and shapes
+	// 3. User HTML5 Geolocation -- add an extra method for dropping a pin maybe??
+	
+	InteractiveMap.prototype.addPolygon = function( coordinatesArray, options ){
+		var self = this,
+			polygonOptions = {
+				paths: [],
+				strokeColor: '#FF0000',
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				fillColor: '#FF0000',
+				fillOpacity: 0.35
+			};
+		
+		options.color && (polygonOptions.strokeColor = options.color);
+		options.opacity && (polygonOptions.strokeOpacity = options.opacity);
+		options.thickness && (polygonOptions.strokeWeight = options.thickness);
+		options.background && (polygonOptions.fillColor = options.background);
+		options.backgroundOpacity && (polygonOptions.fillOpacity = options.backgroundOpacity);
+				
+		if( coordinatesArray ){
+			
+			for (var i=0; i < coordinatesArray.length; i++) {
+				polygonOptions.paths.push( new google.maps.LatLng( coordinatesArray[i].lat, coordinatesArray[i].lng ) );
+			};
+			
+			var polygon = new google.maps.Polygon( polygonOptions );
+			polygon.setMap( self.map );
+			
+			self.polygons.push( polygon );
+		}
+		
+	}
+	
+	// Remove polygons -- Still in the array
+	InteractiveMap.prototype.removePolygons = function(){
+		var self = this;
+		
+		if( self.polygons ){
+			for (var i=0; i < self.polygons.length; i++) {
+				self.polygons[i].setMap( null );
+			};
+		}
+	}
+	
+	// Show polygons -- Still in the array
+	InteractiveMap.prototype.showPolygons = function(){
+		var self = this;
+		
+		if( self.polygons ){
+			for (var i=0; i < self.polygons.length; i++) {
+				self.polygons[i].setMap( self.map );
+			};
+		}
+	}
+	
+	// Delete polygons - including the ones in the array
+	InteractiveMap.prototype.deletePolygons = function(){
+		var self = this;
+		
+		if( self.polygons ){
+			for (var i=0; i < self.polygons.length; i++) {
+				self.polygons[i].setMap(null);
+			};
+			
+			self.polygons.length = 0;
+		}
+	}
 	
 	// Events
 	InteractiveMap.prototype.on = function( event, callback ){

@@ -1,15 +1,20 @@
 (function($){
 	
-	myMap = new InteractiveMap({ element: '.map', disableDefaultUI: true, lat: 59.32522, lng: 18.07002, zoom: 8, mapType: 'terrain' });	
-	var marker = myMap.addMarker({ 
-		lat: 59.32522, 
-		lng: 18.07002, 
-		title: 'AQ',
-		click: function( evt ){
-			console.log( 'tıklandı', evt, this ); // this refers to the function
-		},
-		content: '<strong>This is some content</strong>'
-	});
+	myMap = new InteractiveMap({ element: '.map', disableDefaultUI: true, lat: 24.886436490787712, lng: -70.2685546875, zoom: 5, mapType: 'terrain' });	
+	
+	myMap.addPolygon([{lat:25.774252, lng:-80.190262}, {lat:18.466465, lng:-66.118292}, {lat:32.321384, lng:-64.75737}, {lat:25.774252, lng:-80.190262}], { color: '#000' });
+	
+	
+	
+	// var marker = myMap.addMarker({ 
+	// 		lat: 59.32522, 
+	// 		lng: 18.07002, 
+	// 		title: 'AQ',
+	// 		click: function( evt ){
+	// 			console.log( 'tıklandı', evt, this ); // this refers to the function
+	// 		},
+	// 		content: '<strong>This is some content</strong>'
+	// 	});
 
 	
 		// 
